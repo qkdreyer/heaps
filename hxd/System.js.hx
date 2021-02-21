@@ -1,5 +1,13 @@
 package hxd;
 
+#if nodejs
+import haxe.Constraints.Function;
+@:native("global")
+extern class Node {
+	static function setTimeout(callback:Function): Int;
+}
+#end
+
 enum Platform {
 	IOS;
 	Android;
@@ -48,11 +56,15 @@ class System {
 	}
 
 	static function browserLoop() {
+		#if nodejs
+		Node.setTimeout(browserLoop);
+		#else
 		var window : Dynamic = js.Browser.window;
 		var rqf : Dynamic = window.requestAnimationFrame ||
 			window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame;
 		rqf(browserLoop);
+		#end
 		if( loopFunc != null ) loopFunc();
 	}
 
