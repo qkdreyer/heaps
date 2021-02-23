@@ -418,11 +418,11 @@ class NodeSocketInput extends SocketInput {
 
 	public function new(sock) {
 		this.s = sock;
-		@:privateAccess s.s.on('data', onData);
+		@:privateAccess s.s.on('data', buf -> onData(buf, buf.length));
+		@:privateAccess s.s.on('end', () -> onData(js.node.Buffer.from([]), -4095));
 	}
 
-	function onData(buf:js.node.Buffer) {
-		var recv = buf.length;
+	function onData(buf:js.node.Buffer, recv:Int) {
 		if( recv < 0 ) {
 			s.close();
 			s.onError("Connection closed");
